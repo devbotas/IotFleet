@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Tinkerforge.AirQualityMonitor": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
