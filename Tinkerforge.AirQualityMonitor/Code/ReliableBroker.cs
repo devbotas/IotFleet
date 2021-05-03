@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using NLog;
 using uPLibrary.Networking.M2Mqtt;
 
-namespace Tinkerforge.AirQualityMonitor {
+namespace AirQualityMonitor {
     class ReliableBroker {
         public delegate void PublishReceivedDelegate(string topic, string payload);
         public event PublishReceivedDelegate PublishReceived;

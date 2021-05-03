@@ -3,8 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DevBot9.Protocols.Homie;
 using NLog;
+using Tinkerforge;
 
-namespace Tinkerforge.AirQualityMonitor {
+namespace AirQualityMonitor {
     class AirQualityProducer {
         private CancellationTokenSource _globalCancellationTokenSource = new CancellationTokenSource();
         private ReliableBroker _reliableBroker;
@@ -20,7 +21,7 @@ namespace Tinkerforge.AirQualityMonitor {
         private HostStringProperty _systemIpAddress;
 
         public BrickletAirQuality AirQualityBricklet { get; set; }
-        public static Logger Log = LogManager.GetLogger("RackMonitor.RackMonitorProducer");
+        public static Logger Log = LogManager.GetCurrentClassLogger();
 
         public AirQualityProducer() { }
 

@@ -20,11 +20,8 @@
 
   <rules>
     <!-- Filtering loggers from this app namespace only. Otherwise, logs from third party nugets may be catched. For example, RavenDb uses NLog too. -->
-    <logger name="HomieWrapper.*" minlevel="Debug" writeTo="logFile" />
-    <logger name="HomieWrapper.*" minlevel="Debug" writeTo="debugger" />
-    <logger name="HomieWrapper.*" minlevel="Debug" writeTo="console" />
-    <logger name="SharpModbus.*" minlevel="Debug" writeTo="logFile" />
-    <logger name="SharpModbus.*" minlevel="Debug" writeTo="debugger" />
-    <logger name="SharpModbus.*" minlevel="Debug" writeTo="console" />
+    <logger name="AirQualityMonitor.*" minlevel="Debug" writeTo="logFile" />
+    <logger name="AirQualityMonitor.*" minlevel="Debug" writeTo="debugger" />
+    <logger name="AirQualityMonitor.*" minlevel="Debug" writeTo="console" />
   </rules>
 </nlog>

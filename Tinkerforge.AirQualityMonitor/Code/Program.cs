@@ -7,10 +7,10 @@ using System.Xml;
 using DevBot9.Protocols.Homie;
 using NLog;
 using NLog.Config;
+using Tinkerforge;
 
-namespace Tinkerforge.AirQualityMonitor {
+namespace AirQualityMonitor {
     class Program {
-
         private static BrickletAirQuality _airQualityBricklet;
         private static IPConnection _brickConnection;
 
@@ -20,7 +20,7 @@ namespace Tinkerforge.AirQualityMonitor {
         private static ReliableBroker _reliableBroker = new ReliableBroker();
         private static AirQualityProducer _airQualityMonitor = new AirQualityProducer();
 
-        public static Logger Log = LogManager.GetLogger("RackMonitor.Main");
+        public static Logger Log = LogManager.GetCurrentClassLogger();
 
         static void Main() {
             // First, the logger.

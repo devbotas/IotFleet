@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Tinkerforge.AirQualityMonitor.Properties {
+namespace AirQualityMonitor.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Tinkerforge.AirQualityMonitor.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Tinkerforge.AirQualityMonitor.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("AirQualityMonitor.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -72,7 +72,7 @@ namespace Tinkerforge.AirQualityMonitor.Properties {
         ///  &lt;variable name=&quot;LogsFolder&quot; value=&quot;!LogsFolderTag!&quot;/&gt;
         ///
         ///  &lt;targets&gt;
-        ///    &lt;target name=&quot;logFile&quot; maxArchiveFiles=&quot;30&quot; archiveNumbering=&quot;Date&quot; archiveEvery=&quot;Month&quot; xsi:type=&quot;File&quot; fileName=&quot;${Log [rest of string was truncated]&quot;;.
+        ///    &lt;target name=&quot;logFile&quot; maxArchiveFiles=&quot;30&quot; archiveNumbering=&quot;Date&quot; archiveEvery=&quot;Month&quot; xsi:type=&quot;File&quot; fileName=&quot;${LogsFolder}/Ap [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string NLogConfig {
             get {
