@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="DevBot9.Protocols.Homie" Version="0.9.0-preview.13" />
     <PackageReference Include="FiftyOneNorth.Tinkerforge" Version="1.0.7" />
+    <PackageReference Include="InfluxDB.Client" Version="1.18.0" />
     <PackageReference Include="M2MqttDotnetCore" Version="1.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.13" />
     <PackageReference Include="NLog" Version="4.7.9" />

@@ -11,10 +11,10 @@ namespace AirQualityMonitor {
         private ReliableBroker _reliableBroker;
 
         private HostDevice _device;
-        private HostFloatProperty _pressure;
-        private HostFloatProperty _temperature;
-        private HostFloatProperty _humidity;
-        private HostFloatProperty _qualityIndex;
+        public HostFloatProperty Pressure;
+        public HostFloatProperty Temperature;
+        public HostFloatProperty Humidity;
+        public HostFloatProperty QualityIndex;
 
         private DateTime _startTime = DateTime.Now;
         private HostFloatProperty _systemUptime;
@@ -35,10 +35,10 @@ namespace AirQualityMonitor {
 
             Log.Info($"Creating Homie properties.");
             _device.UpdateNodeInfo("ambient", "Ambient properties", "no-type");
-            _pressure = _device.CreateHostFloatProperty(PropertyType.State, "ambient", "pressure", "Pressure", 0, "hPa");
-            _temperature = _device.CreateHostFloatProperty(PropertyType.State, "ambient", "temperature", "Temperature", 0, "°C");
-            _humidity = _device.CreateHostFloatProperty(PropertyType.State, "ambient", "humidity", "Humidity", 0, "%");
-            _qualityIndex = _device.CreateHostFloatProperty(PropertyType.State, "ambient", "quality-index", "Quality index");
+            Pressure = _device.CreateHostFloatProperty(PropertyType.State, "ambient", "pressure", "Pressure", 0, "hPa");
+            Temperature = _device.CreateHostFloatProperty(PropertyType.State, "ambient", "temperature", "Temperature", 0, "°C");
+            Humidity = _device.CreateHostFloatProperty(PropertyType.State, "ambient", "humidity", "Humidity", 0, "%");
+            QualityIndex = _device.CreateHostFloatProperty(PropertyType.State, "ambient", "quality-index", "Quality index");
 
             _device.UpdateNodeInfo("system", "System", "no-type");
             _systemUptime = _device.CreateHostFloatProperty(PropertyType.State, "system", "uptime", "Uptime", 0, "h");
@@ -52,11 +52,11 @@ namespace AirQualityMonitor {
                 while (_globalCancellationTokenSource.IsCancellationRequested == false) {
                     try {
                         if (AirQualityBricklet != null) {
-                            _pressure.Value = (float)(AirQualityBricklet.GetAirPressure() / 100.0);
-                            _temperature.Value = (float)(AirQualityBricklet.GetTemperature() / 100.0);
-                            _humidity.Value = (float)(AirQualityBricklet.GetHumidity() / 100.0);
+                            Pressure.Value = (float)(AirQualityBricklet.GetAirPressure() / 100.0);
+                            Temperature.Value = (float)(AirQualityBricklet.GetTemperature() / 100.0);
+                            Humidity.Value = (float)(AirQualityBricklet.GetHumidity() / 100.0);
                             AirQualityBricklet.GetIAQIndex(out var index, out var _);
-                            _qualityIndex.Value = index;
+                            QualityIndex.Value = index;
                         }
                     }
                     catch (Exception) {
