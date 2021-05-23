@@ -22,7 +22,6 @@ namespace AirQualityMonitor {
         private static string _localHostname = "no-hostname";
         private static string _localIpAddress = "0.0.0.0";
 
-        private static ReliableBroker _reliableBroker = new ReliableBroker();
         private static AirQualityProducer _airQualityProducer = new AirQualityProducer();
 
         public static Logger Log = LogManager.GetCurrentClassLogger();
@@ -69,8 +68,7 @@ namespace AirQualityMonitor {
             // Initializing classes.
             Log.Info("Initializing connections.");
             DeviceFactory.Initialize("homie");
-            _reliableBroker.Initialize(brokerIp);
-            _airQualityProducer.Initialize(_reliableBroker);
+            _airQualityProducer.Initialize(brokerIp);
 
             // Connecting to bricklets.
             _brickConnection = new IPConnection();
