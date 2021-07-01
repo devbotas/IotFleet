@@ -10,8 +10,10 @@ namespace AirQualityMonitor {
     class AirQualityProducer {
         private CancellationTokenSource _globalCancellationTokenSource = new CancellationTokenSource();
         private IMqttBroker _broker = new PahoBroker();
-
         private HostDevice _device;
+        private readonly byte[] _digits = { 0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f, 0x77, 0x7c, 0x39, 0x5e, 0x79, 0x71 }; // 0~9,A,B,C,D,E,F
+        private static bool _showColon;
+
         public HostNumberProperty Pressure;
         public HostNumberProperty Temperature;
         public HostNumberProperty Humidity;
@@ -22,6 +24,7 @@ namespace AirQualityMonitor {
         private HostTextProperty _systemIpAddress;
 
         public BrickletAirQuality AirQualityBricklet { get; set; }
+        public BrickletSegmentDisplay4x7 SegmentDisplayBricklet { get; set; }
         public static Logger Log = LogManager.GetCurrentClassLogger();
 
         public AirQualityProducer() { }
@@ -61,6 +64,17 @@ namespace AirQualityMonitor {
                             Humidity.Value = (float)(AirQualityBricklet.GetHumidity() / 100.0);
                             AirQualityBricklet.GetIAQIndex(out var index, out var _);
                             QualityIndex.Value = index;
+                        }
+
+                        if (SegmentDisplayBricklet != null) {
+                            var temperatureLowerDigit = (int)(Math.Round(Temperature.Value, 0) % 10);
+                            var temperatureHigherDigit = (int)((Math.Round(Temperature.Value, 0) - temperatureLowerDigit) / 10);
+
+                            var humidityLowerDigit = (int)(Math.Round(Humidity.Value, 0) % 10);
+                            var humidityHigherDigit = (int)((Math.Round(Humidity.Value, 0) - humidityLowerDigit) / 10);
+
+                            SegmentDisplayBricklet.SetSegments(new[] { _digits[temperatureHigherDigit], _digits[temperatureLowerDigit], _digits[humidityHigherDigit], _digits[humidityLowerDigit] }, 0, _showColon);
+                            _showColon = !_showColon;
                         }
                     }
                     catch (Exception) {

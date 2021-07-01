@@ -16,7 +16,6 @@ using Tinkerforge;
 
 namespace AirQualityMonitor {
     class Program {
-        private static BrickletAirQuality _airQualityBricklet;
         private static IPConnection _brickConnection;
 
         private static string _localHostname = "no-hostname";
@@ -101,10 +100,17 @@ namespace AirQualityMonitor {
         static void HandleEnumeration(IPConnection sender, string UID, string connectedUID, char position, short[] hardwareVersion, short[] firmwareVersion, int deviceIdentifier, short enumerationType) {
             if (enumerationType == IPConnection.ENUMERATION_TYPE_CONNECTED || enumerationType == IPConnection.ENUMERATION_TYPE_AVAILABLE) {
                 if (deviceIdentifier == BrickletAirQuality.DEVICE_IDENTIFIER) {
-                    _airQualityBricklet = new BrickletAirQuality(UID, _brickConnection);
+                    var airQualityBricklet = new BrickletAirQuality(UID, _brickConnection);
 
-                    Log.Info($"Found humidity bricklet {UID}. Giving it to RackMonitor.");
-                    _airQualityProducer.AirQualityBricklet = _airQualityBricklet;
+                    Log.Info($"Found Air quality bricklet {UID}.");
+                    _airQualityProducer.AirQualityBricklet = airQualityBricklet;
+                }
+
+                if (deviceIdentifier == BrickletSegmentDisplay4x7.DEVICE_IDENTIFIER) {
+                    var segmentDisplayBricklet = new BrickletSegmentDisplay4x7(UID, _brickConnection);
+
+                    Log.Info($"Found segment display {UID}.");
+                    _airQualityProducer.SegmentDisplayBricklet = segmentDisplayBricklet;
                 }
             }
         }
