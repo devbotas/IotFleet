@@ -22,6 +22,7 @@ namespace AirQualityMonitor {
         private DateTime _startTime = DateTime.Now;
         private HostNumberProperty _systemUptime;
         private HostTextProperty _systemIpAddress;
+        private HostTextProperty _systemStatus;
 
         public BrickletAirQuality AirQualityBricklet { get; set; }
         public BrickletSegmentDisplay4x7 SegmentDisplayBricklet { get; set; }
@@ -45,6 +46,7 @@ namespace AirQualityMonitor {
             _device.UpdateNodeInfo("system", "System", "no-type");
             _systemUptime = _device.CreateHostNumberProperty(PropertyType.State, "system", "uptime", "Uptime", 0, "h");
             _systemIpAddress = _device.CreateHostTextProperty(PropertyType.State, "system", "ip-address", "IP address", Program.GetLocalIpAddress());
+            _systemStatus = _device.CreateHostTextProperty(PropertyType.State, "system", "status", "Status", "Healthy");
 
             Log.Info($"Initializing Homie entities.");
             _broker.Initialize(mqttBrokerIpAddress);
@@ -55,6 +57,8 @@ namespace AirQualityMonitor {
             });
 
             Task.Run(async () => {
+                var timeoutCounter = 0;
+
                 Log.Info($"Spinning up parameter monitoring task.");
                 while (_globalCancellationTokenSource.IsCancellationRequested == false) {
                     try {
@@ -76,15 +80,27 @@ namespace AirQualityMonitor {
                             SegmentDisplayBricklet.SetSegments(new[] { _digits[temperatureHigherDigit], _digits[temperatureLowerDigit], _digits[humidityHigherDigit], _digits[humidityLowerDigit] }, 0, _showColon);
                             _showColon = !_showColon;
                         }
+
+                        if (timeoutCounter > 0) {
+                            _systemStatus.Value = "Healthy";
+                            _device.SetState(HomieState.Ready);
+                            timeoutCounter = 0;
+                        }
                     }
                     catch (Exception) {
                         // Sometimes this happens. No problem, swallowing, and giving some time to recover.
                         Log.Info("Reading Tinkerforge humidity bricklet timeouted.");
+                        timeoutCounter++;
                         await Task.Delay(2000);
                     }
 
                     _systemUptime.Value = (float)(DateTime.Now - _startTime).TotalHours;
                     _systemIpAddress.Value = Program.GetLocalIpAddress();
+
+                    if (timeoutCounter > 3) {
+                        _systemStatus.Value = "Bricklet is missing!";
+                        _device.SetState(HomieState.Alert);
+                    }
 
                     await Task.Delay(5000);
                 }
