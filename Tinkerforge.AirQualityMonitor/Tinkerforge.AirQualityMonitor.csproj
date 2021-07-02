@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DevBot9.Protocols.Homie" Version="0.10.0-preview.8" />
+    <PackageReference Include="DevBot9.Protocols.Homie" Version="0.10.0-preview.13" />
     <PackageReference Include="DevBot9.Protocols.Homie.Utilities" Version="0.10.0-preview.8" />
     <PackageReference Include="FiftyOneNorth.Tinkerforge" Version="1.0.7" />
     <PackageReference Include="InfluxDB.Client" Version="1.18.0" />
