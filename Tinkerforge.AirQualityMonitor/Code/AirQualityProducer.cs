@@ -9,7 +9,7 @@ using Tinkerforge;
 namespace AirQualityMonitor {
     class AirQualityProducer {
         private CancellationTokenSource _globalCancellationTokenSource = new CancellationTokenSource();
-        private PahoHostDeviceConnection _broker = new PahoHostDeviceConnection();
+        private YahiTevuxHostConnection _broker = new YahiTevuxHostConnection();
         private HostDevice _device;
         private readonly byte[] _digits = { 0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f, 0x77, 0x7c, 0x39, 0x5e, 0x79, 0x71 }; // 0~9,A,B,C,D,E,F
         private static bool _showColon;
@@ -49,7 +49,9 @@ namespace AirQualityMonitor {
             _systemStatus = _device.CreateHostTextProperty(PropertyType.State, "system", "status", "Status", "Healthy");
 
             Log.Info($"Initializing Homie entities.");
-            _broker.Initialize(mqttBrokerIpAddress);
+            var connectionOptions = new Tevux.Protocols.Mqtt.ChannelConnectionOptions();
+            connectionOptions.SetHostname(mqttBrokerIpAddress);
+            _broker.Initialize(connectionOptions);
             _device.Initialize(_broker, (severity, message) => {
                 if (severity == "Info") { Log.Info(message); }
                 else if (severity == "Error") { Log.Error(message); }
