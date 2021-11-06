@@ -15,12 +15,12 @@ namespace TinkerforgeNodes {
             if (string.IsNullOrEmpty(envVariable)) { throw new ArgumentException("Requested ENV variable must be an non-empty string.", nameof(envVariable)); }
 
             var loadedVariable = Environment.GetEnvironmentVariable(envVariable);
-            if (string.IsNullOrEmpty(envVariable) && string.IsNullOrEmpty(defaultValue)) {
+            if (string.IsNullOrEmpty(loadedVariable) && string.IsNullOrEmpty(defaultValue)) {
                 _log.Fatal($"Evironment variable {envVariable} is not in the environment. Application will exit after a few seconds.");
                 Thread.Sleep(20000); // <-- Preventing restart loops in docker containers, so the user at least could see the error messages.
                 Environment.Exit(-1);
             }
-            else if (string.IsNullOrEmpty(envVariable)) {
+            else if (string.IsNullOrEmpty(loadedVariable)) {
                 _log.Warn($"Evironment variable {envVariable} is not provided. Using default value {defaultValue}.");
                 loadedVariable = defaultValue;
             }
