@@ -22,7 +22,6 @@ namespace AirQualityMonitor {
 
         private DateTime _startTime = DateTime.Now;
         private HostNumberProperty _systemUptime;
-        private HostTextProperty _systemIpAddress;
         private HostTextProperty _systemStatus;
 
         public BrickletAirQuality AirQualityBricklet { get; set; }
@@ -46,7 +45,6 @@ namespace AirQualityMonitor {
 
             _device.UpdateNodeInfo("system", "System", "no-type");
             _systemUptime = _device.CreateHostNumberProperty(PropertyType.State, "system", "uptime", "Uptime", 0, "h");
-            _systemIpAddress = _device.CreateHostTextProperty(PropertyType.State, "system", "ip-address", "IP address", Program.GetLocalIpAddress());
             _systemStatus = _device.CreateHostTextProperty(PropertyType.State, "system", "status", "Status", "Healthy");
 
             Log.Info($"Initializing Homie entities.");
@@ -92,7 +90,6 @@ namespace AirQualityMonitor {
                     }
 
                     _systemUptime.Value = (float)(DateTime.Now - _startTime).TotalHours;
-                    _systemIpAddress.Value = Program.GetLocalIpAddress();
 
                     if (timeoutCounter > 3) {
                         _systemStatus.Value = "Bricklet is missing!";

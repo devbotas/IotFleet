@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading;
 using DevBot9.Protocols.Homie;
 using InfluxDB.Client;
@@ -86,27 +84,10 @@ namespace AirQualityMonitor {
         static void HandleConnection(IPConnection sender, short connectReason) {
             Log.Info("Connection to BrickDaemon has been established. Doing the (re)initialization.");
 
-            _localIpAddress = GetLocalIpAddress();
-
             // Enumerate devices again. If we reconnected, the Bricks/Bricklets may have been offline and the configuration may be lost.
             // In this case we don't care for the reason of the connection.
             Log.Info("Beginning re-enumeration of bricklets.");
             _brickConnection.Enumerate();
-        }
-
-        public static string GetLocalIpAddress() {
-            var returnValue = "0.0.0.0";
-
-            _localHostname = Dns.GetHostName();
-            var host = Dns.GetHostEntry(_localHostname);
-
-            foreach (var ip in host.AddressList) {
-                if (ip.AddressFamily == AddressFamily.InterNetwork) {
-                    returnValue = ip.ToString();
-                }
-            }
-
-            return returnValue;
         }
 
         public static void HandleEnumeration(IPConnection sender, string UID, string connectedUID, char position, short[] hardwareVersion, short[] firmwareVersion, int deviceIdentifier, short enumerationType) {
