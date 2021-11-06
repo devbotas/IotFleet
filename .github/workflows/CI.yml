@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: Development
+    tags: 
+      - "Versions/AirQualityMonitor/*"
+  workflow_dispatch:
 
 jobs:
   build:
@@ -19,6 +21,7 @@ jobs:
       - name: build the image
         run: |
           docker buildx build --push \
-            -f "Tinkerforge.AirQualityMonitor/Dockerfile" \
+            -f "AirQualityMonitor/Dockerfile" \
+            --tag devbot9/tinkerforge-airqualitymonitor:${GITHUB_REF#refs/tags/Versions/AirQualityMonitor/} \
             --tag devbot9/tinkerforge-airqualitymonitor:latest \
             --platform linux/amd64,linux/arm/v7,linux/arm64 .
