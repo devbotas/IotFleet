@@ -24,6 +24,9 @@ namespace TinkerforgeNodes {
                 _log.Warn($"Evironment variable {envVariable} is not provided. Using default value {defaultValue}.");
                 loadedVariable = defaultValue;
             }
+            else {
+                _log.Warn($"Evironment variable {envVariable} is set to {loadedVariable}.");
+            }
 
             return loadedVariable;
         }
