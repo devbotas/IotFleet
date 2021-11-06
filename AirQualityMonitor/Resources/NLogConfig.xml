@@ -23,5 +23,11 @@
     <logger name="AirQualityMonitor.*" minlevel="Debug" writeTo="logFile" />
     <logger name="AirQualityMonitor.*" minlevel="Debug" writeTo="debugger" />
     <logger name="AirQualityMonitor.*" minlevel="Debug" writeTo="console" />
+    <logger name="DevBot9.*" minlevel="Debug" writeTo="logFile" />
+    <logger name="DevBot9.*" minlevel="Debug" writeTo="debugger" />
+    <logger name="DevBot9.*" minlevel="Debug" writeTo="console" />
+    <logger name="Tevux.*" minlevel="Debug" writeTo="logFile" />
+    <logger name="Tevux.*" minlevel="Debug" writeTo="debugger" />
+    <logger name="*" minlevel="Trace" writeTo="console" />
   </rules>
 </nlog>

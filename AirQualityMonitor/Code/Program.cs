@@ -1,73 +1,59 @@
 ﻿using System;
 using System.Globalization;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
-using System.Xml;
 using DevBot9.Protocols.Homie;
 using InfluxDB.Client;
 using InfluxDB.Client.Api.Domain;
 using InfluxDB.Client.Writes;
 using NLog;
 using NLog.Config;
+using NLog.Targets;
 using Tinkerforge;
+using TinkerforgeNodes;
 
 namespace AirQualityMonitor {
     class Program {
         private static IPConnection _brickConnection;
-
         private static string _localHostname = "no-hostname";
         private static string _localIpAddress = "0.0.0.0";
-
         private static AirQualityProducer _airQualityProducer = new AirQualityProducer();
-
         public static Logger Log = LogManager.GetCurrentClassLogger();
 
         static void Main() {
-            // First, the logger.
-            var logsFolder = Directory.GetCurrentDirectory();
+            Target.Register<MqttLoggerNlogTarget>("mqtt-logger");
 
-            // NLog doesn't like backslashes.
-            logsFolder = logsFolder.Replace("\\", "/");
+            var brokerIp = TinkerforgeNodes.Helpers.LoadEnvOrDie("MQTT_BROKER_IP", "127.0.0.1");
+            var channelOptions = new Tevux.Protocols.Mqtt.ChannelConnectionOptions();
+            channelOptions.SetHostname(brokerIp);
 
-            // Finalizing NLOG configuration.
-            LogManager.Configuration = new XmlLoggingConfiguration(new XmlTextReader(new MemoryStream(Encoding.UTF8.GetBytes(Properties.Resources.NLogConfig.Replace("!LogsFolderTag!", logsFolder)))), "NLogConfig.xml");
+            var config = new LoggingConfiguration();
+            var logConnection = new Tevux.Protocols.Mqtt.MqttClient();
+            logConnection.Initialize();
+            logConnection.ConnectAndWait(channelOptions);
 
-            // Load environment variables.
-            var brokerIp = Environment.GetEnvironmentVariable("MQTT_BROKER_IP");
-            if (string.IsNullOrEmpty(brokerIp)) {
-                Log.Warn("Evironment variable \"MQTT_BROKER_IP\" is not provided. Using 127.0.0.1.");
-                brokerIp = "127.0.0.1";
-            }
-            var airQualityIp = Environment.GetEnvironmentVariable("AIR_QUALITY_IP");
-            if (string.IsNullOrEmpty(airQualityIp)) {
-                Log.Warn("Evironment variable \"AIR_QUALITY_IP\" is not provided. Using 127.0.0.1.");
-                airQualityIp = "127.0.0.1";
-            }
-            var airQualityToken = Environment.GetEnvironmentVariable("INFLUXDB_TEVUKAS_TOKEN");
-            if (string.IsNullOrEmpty(airQualityToken)) {
-                Console.WriteLine("Evironment variable \"INFLUXDB_TEVUKAS_TOKEN\" is not provided. Application will exit.");
-                Environment.Exit(-1);
-            }
+            var logconsole = new ColoredConsoleTarget("console");
+            config.AddRule(LogLevel.Info, LogLevel.Fatal, logconsole);
 
-            var bucket = Environment.GetEnvironmentVariable("INFLUXDB_TEVUKAS_BUCKET");
-            if (string.IsNullOrEmpty(bucket)) {
-                Console.WriteLine("Evironment variable \"INFLUXDB_TEVUKAS_BUCKET\" is not provided. Application will exit.");
-                Environment.Exit(-1);
-            }
+            var logdebug = new DebuggerTarget("debugger");
+            config.AddRule(LogLevel.Trace, LogLevel.Fatal, logdebug);
 
-            var org = Environment.GetEnvironmentVariable("INFLUXDB_ORG");
-            if (string.IsNullOrEmpty(org)) {
-                Console.WriteLine("Evironment variable \"INFLUXDB_ORG\" is not provided. Application will exit.");
-                Environment.Exit(-1);
-            }
+            TinkerforgeNodes.Helpers.AddFileOutputToLogger(config);
+            TinkerforgeNodes.Helpers.AddMqttOutputToLogger(config, logConnection);
+
+            LogManager.Configuration = config;
+
+            // Load remaining environment variables.
+            var airQualityIp = TinkerforgeNodes.Helpers.LoadEnvOrDie("AIR_QUALITY_IP", "127.0.0.1");
+            var airQualityToken = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_TOKEN");
+            var bucket = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_BUCKET");
+            var org = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_ORG");
 
             // Initializing classes.
             Log.Info("Initializing connections.");
             DeviceFactory.Initialize("homie");
-            _airQualityProducer.Initialize(brokerIp);
+            _airQualityProducer.Initialize(channelOptions);
 
             // Connecting to bricklets.
             _brickConnection = new IPConnection();
@@ -97,24 +83,6 @@ namespace AirQualityMonitor {
 
             Log.Info("Application started.");
         }
-        static void HandleEnumeration(IPConnection sender, string UID, string connectedUID, char position, short[] hardwareVersion, short[] firmwareVersion, int deviceIdentifier, short enumerationType) {
-            if (enumerationType == IPConnection.ENUMERATION_TYPE_CONNECTED || enumerationType == IPConnection.ENUMERATION_TYPE_AVAILABLE) {
-                if (deviceIdentifier == BrickletAirQuality.DEVICE_IDENTIFIER) {
-                    var airQualityBricklet = new BrickletAirQuality(UID, _brickConnection);
-
-                    Log.Info($"Found Air quality bricklet {UID}.");
-                    _airQualityProducer.AirQualityBricklet = airQualityBricklet;
-                }
-
-                if (deviceIdentifier == BrickletSegmentDisplay4x7.DEVICE_IDENTIFIER) {
-                    var segmentDisplayBricklet = new BrickletSegmentDisplay4x7(UID, _brickConnection);
-
-                    Log.Info($"Found segment display {UID}.");
-                    _airQualityProducer.SegmentDisplayBricklet = segmentDisplayBricklet;
-                }
-            }
-        }
-
         static void HandleConnection(IPConnection sender, short connectReason) {
             Log.Info("Connection to BrickDaemon has been established. Doing the (re)initialization.");
 
@@ -139,6 +107,10 @@ namespace AirQualityMonitor {
             }
 
             return returnValue;
+        }
+
+        public static void HandleEnumeration(IPConnection sender, string UID, string connectedUID, char position, short[] hardwareVersion, short[] firmwareVersion, int deviceIdentifier, short enumerationType) {
+            _airQualityProducer.HandleEnumeration(UID, deviceIdentifier, _brickConnection, enumerationType);
         }
     }
 }

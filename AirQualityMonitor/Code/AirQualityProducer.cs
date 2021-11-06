@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DevBot9.Protocols.Homie;
 using DevBot9.Protocols.Homie.Utilities;
 using NLog;
+using Tevux.Protocols.Mqtt;
 using Tinkerforge;
 
 namespace AirQualityMonitor {
@@ -30,7 +31,7 @@ namespace AirQualityMonitor {
 
         public AirQualityProducer() { }
 
-        public void Initialize(string mqttBrokerIpAddress) {
+        public void Initialize(ChannelConnectionOptions connectionOptions) {
             Log.Info($"Initializing {nameof(AirQualityProducer)}.");
 
             _globalCancellationTokenSource = new CancellationTokenSource();
@@ -49,14 +50,8 @@ namespace AirQualityMonitor {
             _systemStatus = _device.CreateHostTextProperty(PropertyType.State, "system", "status", "Status", "Healthy");
 
             Log.Info($"Initializing Homie entities.");
-            var connectionOptions = new Tevux.Protocols.Mqtt.ChannelConnectionOptions();
-            connectionOptions.SetHostname(mqttBrokerIpAddress);
             _broker.Initialize(connectionOptions);
-            _device.Initialize(_broker, (severity, message) => {
-                if (severity == "Info") { Log.Info(message); }
-                else if (severity == "Error") { Log.Error(message); }
-                else { Log.Debug(message); }
-            });
+            _device.Initialize(_broker);
 
             Task.Run(async () => {
                 var timeoutCounter = 0;
@@ -107,6 +102,24 @@ namespace AirQualityMonitor {
                     await Task.Delay(5000);
                 }
             });
+        }
+
+        public void HandleEnumeration(string UID, int deviceIdentifier, IPConnection brickConnection, short enumerationType) {
+            if (enumerationType == IPConnection.ENUMERATION_TYPE_CONNECTED || enumerationType == IPConnection.ENUMERATION_TYPE_AVAILABLE) {
+                if (deviceIdentifier == BrickletAirQuality.DEVICE_IDENTIFIER) {
+                    var airQualityBricklet = new BrickletAirQuality(UID, brickConnection);
+
+                    Log.Info($"Found Air quality bricklet {UID}.");
+                    AirQualityBricklet = airQualityBricklet;
+                }
+
+                if (deviceIdentifier == BrickletSegmentDisplay4x7.DEVICE_IDENTIFIER) {
+                    var segmentDisplayBricklet = new BrickletSegmentDisplay4x7(UID, brickConnection);
+
+                    Log.Info($"Found segment display {UID}.");
+                    SegmentDisplayBricklet = segmentDisplayBricklet;
+                }
+            }
         }
     }
 }
