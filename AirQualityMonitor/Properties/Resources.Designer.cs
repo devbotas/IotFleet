@@ -59,25 +59,5 @@ namespace AirQualityMonitor.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot; ?&gt;
-        ///&lt;nlog xmlns=&quot;http://www.nlog-project.org/schemas/NLog.xsd&quot;
-        ///      xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot;
-        ///      autoReload=&quot;true&quot;
-        ///      throwExceptions=&quot;false&quot;
-        ///      internalLogLevel=&quot;Off&quot;&gt;
-        ///
-        ///  &lt;!-- !!LogsFolderTag!! will be replaced programmatically. --&gt;
-        ///  &lt;variable name=&quot;LogsFolder&quot; value=&quot;!LogsFolderTag!&quot;/&gt;
-        ///
-        ///  &lt;targets&gt;
-        ///    &lt;target name=&quot;logFile&quot; maxArchiveFiles=&quot;30&quot; archiveNumbering=&quot;Date&quot; archiveEvery=&quot;Month&quot; xsi:type=&quot;File&quot; fileName=&quot;${LogsFolder}/Ap [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string NLogConfig {
-            get {
-                return ResourceManager.GetString("NLogConfig", resourceCulture);
-            }
-        }
     }
 }

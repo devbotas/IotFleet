@@ -9,18 +9,15 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using Tinkerforge;
-using TinkerforgeNodes;
 
-namespace AirQualityMonitor {
+namespace ShedMonitor {
     class Program {
         private static IPConnection _brickConnection;
-        private static string _localHostname = "no-hostname";
-        private static string _localIpAddress = "0.0.0.0";
-        private static AirQualityProducer _airQualityProducer = new AirQualityProducer();
+        private static ShedMonitorProducer _shedMonitorProducer = new ShedMonitorProducer();
         public static Logger Log = LogManager.GetCurrentClassLogger();
 
-        static void Main() {
-            Target.Register<MqttLoggerNlogTarget>("mqtt-logger");
+        static void Main(string[] args) {
+            Target.Register<TinkerforgeNodes.MqttLoggerNlogTarget>("mqtt-logger");
 
             var brokerIp = TinkerforgeNodes.Helpers.LoadEnvOrDie("MQTT_BROKER_IP", "127.0.0.1");
             var channelOptions = new Tevux.Protocols.Mqtt.ChannelConnectionOptions();
@@ -43,7 +40,7 @@ namespace AirQualityMonitor {
             LogManager.Configuration = config;
 
             // Load remaining environment variables.
-            var airQualityIp = TinkerforgeNodes.Helpers.LoadEnvOrDie("AIR_QUALITY_IP", "127.0.0.1");
+            var shedMonitorIp = TinkerforgeNodes.Helpers.LoadEnvOrDie("SHED_MONITOR_IP", "127.0.0.1");
             var influxDbToken = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_TOKEN");
             var bucket = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_BUCKET");
             var org = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_ORG");
@@ -52,13 +49,13 @@ namespace AirQualityMonitor {
             // Initializing classes.
             Log.Info("Initializing connections.");
             DeviceFactory.Initialize("homie");
-            _airQualityProducer.Initialize(channelOptions);
+            _shedMonitorProducer.Initialize(channelOptions);
 
             // Connecting to bricklets.
             _brickConnection = new IPConnection();
             _brickConnection.EnumerateCallback += HandleEnumeration;
             _brickConnection.Connected += HandleConnection;
-            _brickConnection.Connect(airQualityIp, 4223);
+            _brickConnection.Connect(shedMonitorIp, 4223);
 
             // InfluxDB part.
             Log.Info("Initializing InfluxDB.");
@@ -69,12 +66,13 @@ namespace AirQualityMonitor {
                     Log.Warn("Cannot write to InfluxDB. Unfortunately, InfluxDB does not provide any useful debug information :(");
                 }
             };
+
             new Thread(() => {
                 while (true) {
-                    var temperaturePoint = PointData.Measurement("AirQuality").Field("Temperature", Convert.ToDouble(_airQualityProducer.Temperature.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
-                    var humidityPoint = PointData.Measurement("AirQuality").Field("Humidity", Convert.ToDouble(_airQualityProducer.Humidity.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
-                    var pressurePoint = PointData.Measurement("AirQuality").Field("Pressure", Convert.ToDouble(_airQualityProducer.Pressure.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
-                    var qualityIndexPoint = PointData.Measurement("AirQuality").Field("QualityIndex", Convert.ToDouble(_airQualityProducer.QualityIndex.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                    var temperaturePoint = PointData.Measurement("AirQuality").Field("Temperature", Convert.ToDouble(_shedMonitorProducer.Temperature.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                    var humidityPoint = PointData.Measurement("AirQuality").Field("Humidity", Convert.ToDouble(_shedMonitorProducer.Humidity.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                    var pressurePoint = PointData.Measurement("AirQuality").Field("Pressure", Convert.ToDouble(_shedMonitorProducer.Pressure.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                    var qualityIndexPoint = PointData.Measurement("AirQuality").Field("QualityIndex", Convert.ToDouble(_shedMonitorProducer.QualityIndex.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
 
                     tevukasWriteApi.WritePoint(bucket, org, temperaturePoint);
                     tevukasWriteApi.WritePoint(bucket, org, humidityPoint);
@@ -87,6 +85,7 @@ namespace AirQualityMonitor {
 
             Log.Info("Application started.");
         }
+
         static void HandleConnection(IPConnection sender, short connectReason) {
             Log.Info("Connection to BrickDaemon has been established. Doing the (re)initialization.");
 
@@ -97,7 +96,7 @@ namespace AirQualityMonitor {
         }
 
         public static void HandleEnumeration(IPConnection sender, string UID, string connectedUID, char position, short[] hardwareVersion, short[] firmwareVersion, int deviceIdentifier, short enumerationType) {
-            _airQualityProducer.HandleEnumeration(UID, deviceIdentifier, _brickConnection, enumerationType);
+            _shedMonitorProducer.HandleEnumeration(UID, deviceIdentifier, _brickConnection, enumerationType);
         }
     }
 }
