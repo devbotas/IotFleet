@@ -73,11 +73,13 @@ namespace ShedMonitor {
                     var humidityPoint = PointData.Measurement("ShedMonitor").Field("Humidity", Convert.ToDouble(_shedMonitorProducer.Humidity.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
                     var pressurePoint = PointData.Measurement("ShedMonitor").Field("Pressure", Convert.ToDouble(_shedMonitorProducer.Pressure.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
                     var qualityIndexPoint = PointData.Measurement("ShedMonitor").Field("QualityIndex", Convert.ToDouble(_shedMonitorProducer.QualityIndex.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                    var waterPressurePoint = PointData.Measurement("ShedMonitor").Field("WaterPressure", Convert.ToDouble(_shedMonitorProducer.WaterPressure.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
 
                     tevukasWriteApi.WritePoint(bucket, org, temperaturePoint);
                     tevukasWriteApi.WritePoint(bucket, org, humidityPoint);
                     tevukasWriteApi.WritePoint(bucket, org, pressurePoint);
                     tevukasWriteApi.WritePoint(bucket, org, qualityIndexPoint);
+                    tevukasWriteApi.WritePoint(bucket, org, waterPressurePoint);
 
                     Thread.Sleep(5000);
                 }
