@@ -69,10 +69,10 @@ namespace ShedMonitor {
 
             new Thread(() => {
                 while (true) {
-                    var temperaturePoint = PointData.Measurement("AirQuality").Field("Temperature", Convert.ToDouble(_shedMonitorProducer.Temperature.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
-                    var humidityPoint = PointData.Measurement("AirQuality").Field("Humidity", Convert.ToDouble(_shedMonitorProducer.Humidity.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
-                    var pressurePoint = PointData.Measurement("AirQuality").Field("Pressure", Convert.ToDouble(_shedMonitorProducer.Pressure.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
-                    var qualityIndexPoint = PointData.Measurement("AirQuality").Field("QualityIndex", Convert.ToDouble(_shedMonitorProducer.QualityIndex.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                    var temperaturePoint = PointData.Measurement("ShedMonitor").Field("Temperature", Convert.ToDouble(_shedMonitorProducer.Temperature.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                    var humidityPoint = PointData.Measurement("ShedMonitor").Field("Humidity", Convert.ToDouble(_shedMonitorProducer.Humidity.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                    var pressurePoint = PointData.Measurement("ShedMonitor").Field("Pressure", Convert.ToDouble(_shedMonitorProducer.Pressure.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+                    var qualityIndexPoint = PointData.Measurement("ShedMonitor").Field("QualityIndex", Convert.ToDouble(_shedMonitorProducer.QualityIndex.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
 
                     tevukasWriteApi.WritePoint(bucket, org, temperaturePoint);
                     tevukasWriteApi.WritePoint(bucket, org, humidityPoint);
