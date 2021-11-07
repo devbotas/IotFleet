@@ -47,6 +47,7 @@ namespace AirQualityMonitor {
             var airQualityToken = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_TOKEN");
             var bucket = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_BUCKET");
             var org = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_ORG");
+            var influxDbHost = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_HOST", "http://127.0.0.1:8086");
 
             // Initializing classes.
             Log.Info("Initializing connections.");
@@ -61,7 +62,13 @@ namespace AirQualityMonitor {
 
             // InfluxDB part.
             Log.Info("Initializing InfluxDB.");
-            var tevukasSystemClient = InfluxDBClientFactory.Create("https://westeurope-1.azure.cloud2.influxdata.com", airQualityToken.ToCharArray());
+            var tevukasSystemClient = InfluxDBClientFactory.Create(influxDbHost, airQualityToken.ToCharArray());
+            var tevukasWriteApi = tevukasSystemClient.GetWriteApi();
+            tevukasWriteApi.EventHandler += (sender, e) => {
+                if (e is WriteErrorEvent) {
+                    Log.Warn("Cannot write to InfluxDB. Unfortunately, InfluxDB does not procide any useful debug information :(");
+                }
+            };
             new Thread(() => {
                 while (true) {
                     var temperaturePoint = PointData.Measurement("AirQuality").Field("Temperature", Convert.ToDouble(_airQualityProducer.Temperature.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
@@ -69,12 +76,11 @@ namespace AirQualityMonitor {
                     var pressurePoint = PointData.Measurement("AirQuality").Field("Pressure", Convert.ToDouble(_airQualityProducer.Pressure.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
                     var qualityIndexPoint = PointData.Measurement("AirQuality").Field("QualityIndex", Convert.ToDouble(_airQualityProducer.QualityIndex.Value, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
 
-                    using (var tevukasWriteApi = tevukasSystemClient.GetWriteApi()) {
-                        tevukasWriteApi.WritePoint("TevukasSystem", org, temperaturePoint);
-                        tevukasWriteApi.WritePoint("TevukasSystem", org, humidityPoint);
-                        tevukasWriteApi.WritePoint("TevukasSystem", org, pressurePoint);
-                        tevukasWriteApi.WritePoint("TevukasSystem", org, qualityIndexPoint);
-                    }
+                    tevukasWriteApi.WritePoint(bucket, org, temperaturePoint);
+                    tevukasWriteApi.WritePoint(bucket, org, humidityPoint);
+                    tevukasWriteApi.WritePoint(bucket, org, pressurePoint);
+                    tevukasWriteApi.WritePoint(bucket, org, qualityIndexPoint);
+
                     Thread.Sleep(5000);
                 }
             }).Start();
