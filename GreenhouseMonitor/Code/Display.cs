@@ -11,18 +11,19 @@ namespace GreenhouseMonitor;
 public class Display {
     public void Initialize(Measurements measurements) {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+            // Initializing busses.
             var spiSettings = new SpiConnectionSettings(0, 1);
             spiSettings.ClockFrequency = 12_000_000;
             var spiBus = SpiDevice.Create(spiSettings);
-
             var gpioController = new System.Device.Gpio.GpioController();
 
+            // Initializing display.
             var lcd = new ST7735();
             lcd.InitializeAsPimoroniEnviro(spiBus, gpioController);
             lcd.SetOrientation(Orientation.Rotated270);
-
             lcd.Clear();
 
+            // Now goes fonts and colors.
             var smallFont = SystemFonts.CreateFont("DejaVu Sans", 16, FontStyle.Regular);
             var bigFont = SystemFonts.CreateFont("DejaVu Sans", 32, FontStyle.Regular);
             var emojiFont = SystemFonts.CreateFont("Symbola", 29, FontStyle.Regular);
@@ -30,6 +31,7 @@ public class Display {
             var backgroundColor = Color.Purple;
             var foregroundColor = Color.White;
 
+            // Drawing emoji symbols (these will need refreshing).
             var thermometerImage = new Image<Bgr565>(29, 39);
             thermometerImage.Mutate(ctx => ctx.Fill(backgroundColor).DrawText("🌡", emojiFont, foregroundColor, new PointF(0, 2)));
             lcd.SetRegion(0, 0, 29, 39);
@@ -40,21 +42,22 @@ public class Display {
             lcd.SetRegion(0, 40, 29, 39);
             lcd.SendBitmap(dropletImage.ToBgr565Array());
 
-
+            // Starting the vindaloop!
             new Thread(() => {
-                // Some variables to be reused.
                 var image = new Image<Bgr565>(80, 39);
-
                 while (true) {
+                    // Drawing temperature.
                     image.Mutate(ctx => ctx.Fill(Color.Purple));
                     image.Mutate(ctx => ctx.Fill(backgroundColor).DrawText(measurements.Temperature.ToString("F1"), bigFont, foregroundColor, new PointF(0, 2)));
                     lcd.SetRegion(29, 0, 80, 39);
                     lcd.SendBitmap(image.ToBgr565Array());
 
+                    // Drawing humidity.
                     image.Mutate(ctx => ctx.Fill(backgroundColor).DrawText(measurements.Humidity.ToString("F0") + "%", bigFont, foregroundColor, new PointF(0, 2)));
                     lcd.SetRegion(29, 40, 80, 39);
                     lcd.SendBitmap(image.ToBgr565Array());
 
+                    // Drawing pressure (and maybe other less important stuff, too).
                     var secondaryPanel = new Image<Bgr565>(80, 47);
                     secondaryPanel.Mutate(ctx => ctx.Fill(backgroundColor).DrawText(measurements.Pressure.ToString("F0") + "hPa", smallFont, foregroundColor, new PointF(4, 0)));
                     secondaryPanel.Mutate(ctx => ctx.Rotate(270));
