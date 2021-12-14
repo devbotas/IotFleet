@@ -12,8 +12,8 @@ Logger Log = LogManager.GetCurrentClassLogger();
 var config = new LoggingConfiguration();
 var logconsole = new ColoredConsoleTarget("console");
 config.AddRule(LogLevel.Info, LogLevel.Fatal, logconsole);
-var logdebug = new DebuggerTarget("debugger");
-config.AddRule(LogLevel.Trace, LogLevel.Fatal, logdebug);
+//var logdebug = new DebuggerTarget("debugger");
+//config.AddRule(LogLevel.Trace, LogLevel.Fatal, logdebug);
 IotFleet.Helpers.AddFileOutputToLogger(config);
 LogManager.Configuration = config;
 
