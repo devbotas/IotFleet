@@ -25,7 +25,7 @@ public class HomieProducer {
     public HomieProducer() { }
 
     public void Initialize(Measurements measurements) {
-        var brokerIp = Helpers.LoadEnvOrDie("MQTT_BROKER_IP", "127.0.0.1");
+        var brokerIp = IotFleet.Helpers.LoadEnvOrDie("MQTT_BROKER_IP", "127.0.0.1");
         var channelOptions = new Tevux.Protocols.Mqtt.ChannelConnectionOptions();
         channelOptions.SetHostname(brokerIp);
 

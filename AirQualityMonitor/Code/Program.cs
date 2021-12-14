@@ -9,7 +9,7 @@ using NLog;
 using NLog.Config;
 using NLog.Targets;
 using Tinkerforge;
-using TinkerforgeNodes;
+using IotFleet;
 
 namespace AirQualityMonitor {
     class Program {
@@ -22,7 +22,7 @@ namespace AirQualityMonitor {
         static void Main() {
             Target.Register<MqttLoggerNlogTarget>("mqtt-logger");
 
-            var brokerIp = TinkerforgeNodes.Helpers.LoadEnvOrDie("MQTT_BROKER_IP", "127.0.0.1");
+            var brokerIp = IotFleet.Helpers.LoadEnvOrDie("MQTT_BROKER_IP", "127.0.0.1");
             var channelOptions = new Tevux.Protocols.Mqtt.ChannelConnectionOptions();
             channelOptions.SetHostname(brokerIp);
 
@@ -37,17 +37,17 @@ namespace AirQualityMonitor {
             var logdebug = new DebuggerTarget("debugger");
             config.AddRule(LogLevel.Trace, LogLevel.Fatal, logdebug);
 
-            TinkerforgeNodes.Helpers.AddFileOutputToLogger(config);
-            TinkerforgeNodes.Helpers.AddMqttOutputToLogger(config, logConnection);
+            IotFleet.Helpers.AddFileOutputToLogger(config);
+            IotFleet.Helpers.AddMqttOutputToLogger(config, logConnection);
 
             LogManager.Configuration = config;
 
             // Load remaining environment variables.
-            var airQualityIp = TinkerforgeNodes.Helpers.LoadEnvOrDie("AIR_QUALITY_IP", "127.0.0.1");
-            var influxDbToken = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_TOKEN");
-            var bucket = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_BUCKET");
-            var org = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_ORG");
-            var influxDbHost = TinkerforgeNodes.Helpers.LoadEnvOrDie("INFLUXDB_HOST", "http://127.0.0.1:8086");
+            var airQualityIp = IotFleet.Helpers.LoadEnvOrDie("AIR_QUALITY_IP", "127.0.0.1");
+            var influxDbToken = IotFleet.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_TOKEN");
+            var bucket = IotFleet.Helpers.LoadEnvOrDie("INFLUXDB_TEVUKAS_BUCKET");
+            var org = IotFleet.Helpers.LoadEnvOrDie("INFLUXDB_ORG");
+            var influxDbHost = IotFleet.Helpers.LoadEnvOrDie("INFLUXDB_HOST", "http://127.0.0.1:8086");
 
             // Initializing classes.
             Log.Info("Initializing connections.");
