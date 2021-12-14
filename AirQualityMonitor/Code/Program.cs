@@ -14,9 +14,7 @@ using IotFleet;
 namespace AirQualityMonitor {
     class Program {
         private static IPConnection _brickConnection;
-        private static string _localHostname = "no-hostname";
-        private static string _localIpAddress = "0.0.0.0";
-        private static AirQualityProducer _airQualityProducer = new AirQualityProducer();
+        private static readonly AirQualityProducer _airQualityProducer = new();
         public static Logger Log = LogManager.GetCurrentClassLogger();
 
         static void Main() {

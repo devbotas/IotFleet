@@ -8,8 +8,8 @@ using Tinkerforge;
 
 namespace ShedMonitor {
     class ShedMonitorProducer {
-        private CancellationTokenSource _globalCancellationTokenSource = new CancellationTokenSource();
-        private YahiTevuxHostConnection _broker = new YahiTevuxHostConnection();
+        private CancellationTokenSource _globalCancellationTokenSource = new();
+        private readonly YahiTevuxHostConnection _broker = new();
 
         private HostDevice _device;
         public HostNumberProperty Pressure;
@@ -19,7 +19,7 @@ namespace ShedMonitor {
 
         public HostNumberProperty WaterPressure;
 
-        private DateTime _startTime = DateTime.Now;
+        private readonly DateTime _startTime = DateTime.Now;
         private HostNumberProperty _systemUptime;
 
         public BrickletAirQuality AirQualityBricklet { get; set; }

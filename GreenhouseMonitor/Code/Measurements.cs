@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Device.I2c;
-using System.Linq;
+﻿using System.Device.I2c;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using Iot.Device.Bmxx80;
 
 namespace GreenhouseMonitor;

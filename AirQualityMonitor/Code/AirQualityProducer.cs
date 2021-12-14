@@ -9,8 +9,8 @@ using Tinkerforge;
 
 namespace AirQualityMonitor {
     class AirQualityProducer {
-        private CancellationTokenSource _globalCancellationTokenSource = new CancellationTokenSource();
-        private YahiTevuxHostConnection _broker = new YahiTevuxHostConnection();
+        private CancellationTokenSource _globalCancellationTokenSource = new();
+        private readonly YahiTevuxHostConnection _broker = new();
         private HostDevice _device;
         private readonly byte[] _digits = { 0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f, 0x77, 0x7c, 0x39, 0x5e, 0x79, 0x71 }; // 0~9,A,B,C,D,E,F
         private static bool _showColon;
@@ -20,7 +20,7 @@ namespace AirQualityMonitor {
         public HostNumberProperty Humidity;
         public HostNumberProperty QualityIndex;
 
-        private DateTime _startTime = DateTime.Now;
+        private readonly DateTime _startTime = DateTime.Now;
         private HostNumberProperty _systemUptime;
         private HostTextProperty _systemStatus;
 

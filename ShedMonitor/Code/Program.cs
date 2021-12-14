@@ -13,7 +13,7 @@ using Tinkerforge;
 namespace ShedMonitor;
 class Program {
     private static IPConnection _brickConnection;
-    private static ShedMonitorProducer _shedMonitorProducer = new ShedMonitorProducer();
+    private static readonly ShedMonitorProducer _shedMonitorProducer = new();
     public static Logger Log = LogManager.GetCurrentClassLogger();
 
     static void Main(string[] args) {

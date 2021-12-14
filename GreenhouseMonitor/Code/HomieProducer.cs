@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DevBot9.Protocols.Homie;
+﻿using DevBot9.Protocols.Homie;
 using DevBot9.Protocols.Homie.Utilities;
 using NLog;
 
 namespace GreenhouseMonitor;
 public class HomieProducer {
-    private CancellationTokenSource _globalCancellationTokenSource = new CancellationTokenSource();
-    private YahiTevuxHostConnection _broker = new YahiTevuxHostConnection();
+    private CancellationTokenSource _globalCancellationTokenSource = new();
+    private readonly YahiTevuxHostConnection _broker = new();
     private HostDevice _device;
     private static readonly Logger _log = LogManager.GetCurrentClassLogger();
 
@@ -18,7 +13,7 @@ public class HomieProducer {
     public HostNumberProperty Temperature;
     public HostNumberProperty Humidity;
 
-    private DateTime _startTime = DateTime.Now;
+    private readonly DateTime _startTime = DateTime.Now;
     private HostNumberProperty _systemUptime;
     private HostTextProperty _systemStatus;
 
