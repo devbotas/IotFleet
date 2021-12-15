@@ -6,9 +6,10 @@ RUN apt-get update
 RUN apt-get install -y nano
 RUN apt-get install -y inetutils-ping 
 RUN apt-get install -y fonts-symbola
+RUN apt-get install -y fonts-dejavu
 RUN rm -rf /var/lib/apt/lists/*
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim-amd64 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0-bullseye-slim AS build
 WORKDIR /src
 COPY ["GreenhouseMonitor/GreenhouseMonitor.csproj", "GreenhouseMonitor/"]
 RUN dotnet restore "GreenhouseMonitor/GreenhouseMonitor.csproj"
