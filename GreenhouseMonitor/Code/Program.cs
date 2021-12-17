@@ -8,7 +8,7 @@ using NLog.Config;
 using NLog.Targets;
 
 // Configuring logger.
-Logger Log = LogManager.GetCurrentClassLogger();
+var Log = LogManager.GetCurrentClassLogger();
 var config = new LoggingConfiguration();
 var logconsole = new ColoredConsoleTarget("console");
 config.AddRule(LogLevel.Info, LogLevel.Fatal, logconsole);
