@@ -48,10 +48,12 @@ new Thread(() => {
         var temperaturePoint = PointData.Measurement("GreenhouseMonitor").Field("Temperature", Convert.ToDouble(measurements.Temperature, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
         var humidityPoint = PointData.Measurement("GreenhouseMonitor").Field("Humidity", Convert.ToDouble(measurements.Humidity, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
         var pressurePoint = PointData.Measurement("GreenhouseMonitor").Field("Pressure", Convert.ToDouble(measurements.Pressure, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
+        var cpuTemperaturePoint = PointData.Measurement("GreenhouseMonitor").Field("CpuPressure", Convert.ToDouble(measurements.CpuTemperature, CultureInfo.InvariantCulture)).Timestamp(DateTime.UtcNow, WritePrecision.Ns);
 
         tevukasWriteApi.WritePoint(bucket, org, temperaturePoint);
         tevukasWriteApi.WritePoint(bucket, org, humidityPoint);
         tevukasWriteApi.WritePoint(bucket, org, pressurePoint);
+        tevukasWriteApi.WritePoint(bucket, org, cpuTemperaturePoint);
 
         Thread.Sleep(5000);
     }
