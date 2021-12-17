@@ -1,6 +1,7 @@
 ﻿using System.Device.I2c;
 using System.Runtime.InteropServices;
 using Iot.Device.Bmxx80;
+using Iot.Device.CpuTemperature;
 
 namespace GreenhouseMonitor;
 
@@ -8,6 +9,7 @@ public class Measurements {
     public double Temperature { get; private set; }
     public double Humidity { get; private set; }
     public double Pressure { get; private set; }
+    public double CpuTemperature { get; private set; }
 
     public Measurements() {
 
@@ -29,6 +31,7 @@ public class Measurements {
             Temperature = 20 + randomNumber.NextDouble() * 3;
             Humidity = 50 + randomNumber.NextDouble() * 3;
             Pressure = 999 + randomNumber.NextDouble() * 20;
+            CpuTemperature = 40 + randomNumber.NextDouble() * 10;
             Thread.Sleep(1000);
         }
     }
@@ -42,12 +45,27 @@ public class Measurements {
             HumiditySampling = Sampling.Standard,
         };
 
+        using var cpuTemperature = new CpuTemperature();
+
         while (true) {
             var readResult = bme280.Read();
 
-            Temperature = readResult.Temperature?.DegreesCelsius ?? 0;
-            Pressure = readResult.Pressure?.Hectopascals ?? 0;
-            Humidity = readResult.Humidity?.Percent ?? 0;
+            var cpuTemperatures = new List<double>();
+            var systemTemperatures = cpuTemperature.ReadTemperatures();
+
+            // There may be multiple system sensors. I'll just pick first one that has a valid value.
+            if (systemTemperatures.Count > 0) {
+                if (double.IsNaN(systemTemperatures[0].Temperature.DegreesCelsius) == false) {
+                    CpuTemperature = systemTemperatures[0].Temperature.DegreesCelsius;
+                    cpuTemperatures.Add(CpuTemperature);
+                    if (cpuTemperatures.Count > 10) { cpuTemperatures.RemoveAt(0); }
+                }
+            }
+            CpuTemperature = cpuTemperatures.Average();
+
+            Temperature = readResult.Temperature?.DegreesCelsius ?? -99;
+            Pressure = readResult.Pressure?.Hectopascals ?? -99;
+            Humidity = readResult.Humidity?.Percent ?? -99;
 
             Thread.Sleep(1000);
         }

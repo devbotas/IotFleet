@@ -16,6 +16,7 @@ public class HomieProducer {
     private readonly DateTime _startTime = DateTime.Now;
     private HostNumberProperty _systemUptime;
     private HostTextProperty _systemStatus;
+    private HostNumberProperty _cpuTemperature;
 
     public HomieProducer() { }
 
@@ -40,6 +41,7 @@ public class HomieProducer {
         _device.UpdateNodeInfo("system", "System", "no-type");
         _systemUptime = _device.CreateHostNumberProperty(PropertyType.State, "system", "uptime", "Uptime", 0, "h");
         _systemStatus = _device.CreateHostTextProperty(PropertyType.State, "system", "status", "Status", "Healthy");
+        _cpuTemperature = _device.CreateHostNumberProperty(PropertyType.State, "system", "cpu-temperature", "CPU temperature", 0, "°C", 1);
 
         _log.Info($"Initializing Homie entities.");
         _broker.Initialize(channelOptions);
@@ -61,6 +63,8 @@ public class HomieProducer {
                     _systemStatus.Value = "Something went wrong";
                     _device.SetState(HomieState.Alert);
                 }
+
+                _cpuTemperature.Value = measurements.CpuTemperature;
 
                 await Task.Delay(1000);
             }
